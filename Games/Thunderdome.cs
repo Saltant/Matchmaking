@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Linq;
 
 namespace Saltant.Matchmaking.Games
 {
@@ -20,6 +21,8 @@ namespace Saltant.Matchmaking.Games
             events = matchmaker.GetEvents;
             events.CreateTeam += OnCreateTeam;
             events.RemoveMatch += OnRemoveMatch;
+            events.Disconnect += TimeTracker.Remove;
+            TimeTracker.OnElapsedTeam += OnElapsedTeam;
         }
 
         public Matchmaker.Events GetEvents => events;
@@ -31,9 +34,33 @@ namespace Saltant.Matchmaking.Games
 
         void OnCreateTeam(Matchmaker.GameType gameType, string playerName, string data, Rank rank)
         {
-            ThunderdomeTeam team = (ThunderdomeTeam)CreateTeam(Matchmaker.GameType.Thunderdome, playerName, data, rank);
-            thunderdomeTeams.Add(team);
-            TryCreateMatch(thunderdomeTeams, this, rank);
+            if (!IsPlayerExistInMatchmaking(playerName))
+            {
+                ThunderdomeTeam team = (ThunderdomeTeam)CreateTeam(Matchmaker.GameType.Thunderdome, playerName, data, rank);
+                thunderdomeTeams.Add(team);
+                TryCreateMatch(thunderdomeTeams, this, rank);
+            }
+            else events.InvokeEvent(gameType, Matchmaker.Events.EventType.CreateTeamError, $"Player {playerName} already exist in matchmaking queue.", playerName);
+        }
+
+        void OnElapsedTeam(ThunderdomeTeam team) => events.InvokeEvent(Matchmaker.GameType.Thunderdome, Matchmaker.Events.EventType.ElapsedTeam, team.GetPlayerName);
+
+        bool IsPlayerExistInMatchmaking(string playerName)
+        {
+            bool isExist = false;
+
+            if (thunderdomeTeams.Where(x => x.GetPlayerName == playerName).Any())
+                isExist = true;
+            else if (trainingTeams.Where(x => x.GetPlayerName == playerName).Any())
+                isExist = true;
+            else if (rookieTeams.Where(x => x.GetPlayerName == playerName).Any())
+                isExist = true;
+            else if (proTeams.Where(x => x.GetPlayerName == playerName).Any())
+                isExist = true;
+            else if (veteranTeams.Where(x => x.GetPlayerName == playerName).Any())
+                isExist = true;
+
+            return isExist;
         }
 
         void OnRemoveMatch(IGameMatch gameMatch)

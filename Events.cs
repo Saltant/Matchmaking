@@ -14,22 +14,25 @@ namespace Saltant.Matchmaking
             public event Action<GameType> TryCreateMatch;
             public event Action<IGameMatch> MatchCreated;
             public event Action<IGameMatch> RemoveMatch;
+            public event Action<string, string> CreateTeamError;
+            public event Action<string> ElapsedTeam;
+            public event Action<string> Disconnect;
 
             public void InvokeEvent(GameType gameType, EventType eventType, object obj1 = null, object obj2 = null, object obj3 = null)
             {
                 switch (eventType)
                 {
                     case EventType.CreateTeam:
-                        CreateTeam.Invoke(gameType, (string)obj1, (string)obj2, (Rank)obj3);
+                        CreateTeam?.Invoke(gameType, (string)obj1, (string)obj2, (Rank)obj3);
                         break;
                     case EventType.TryCreateMatch:
-                        TryCreateMatch.Invoke(gameType);
+                        TryCreateMatch?.Invoke(gameType);
                         break;
                     case EventType.MatchCreated:
                         switch (gameType)
                         {
                             case GameType.Thunderdome:
-                                MatchCreated.Invoke((ThunderdomeGameMatch)obj1);
+                                MatchCreated?.Invoke((ThunderdomeGameMatch)obj1);
                                 break;
                             case GameType.Team5x5:
                                 break;
@@ -41,7 +44,16 @@ namespace Saltant.Matchmaking
 
                         break;
                     case EventType.RemoveMatch:
-                        RemoveMatch.Invoke((IGameMatch)obj1);
+                        RemoveMatch?.Invoke((IGameMatch)obj1);
+                        break;
+                    case EventType.CreateTeamError:
+                        CreateTeamError?.Invoke((string)obj1, (string)obj2);
+                        break;
+                    case EventType.ElapsedTeam:
+                        ElapsedTeam?.Invoke((string)obj1);
+                        break;
+                    case EventType.Disconnect:
+                        Disconnect?.Invoke((string)obj1);
                         break;
                 }
             }
@@ -51,7 +63,10 @@ namespace Saltant.Matchmaking
                 CreateTeam,
                 TryCreateMatch,
                 MatchCreated,
-                RemoveMatch
+                RemoveMatch,
+                CreateTeamError,
+                ElapsedTeam,
+                Disconnect
             }
         }
     }

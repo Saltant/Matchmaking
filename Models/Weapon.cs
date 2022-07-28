@@ -1,10 +1,12 @@
-﻿namespace Saltant.Matchmaking.Models
+﻿using Newtonsoft.Json;
+namespace Saltant.Matchmaking.Models
 {
     public class Weapon
     {
-        public long Id { get; set; }
-        public int Attack { get; set; }
-        public int Defence { get; set; }
-        public string Element { get; set; }
+        [JsonProperty("id")] public long Id { get; set; }
+        [JsonProperty("attack")] public int Attack { get; set; }
+        [JsonProperty("defense")] public int Defence { get; set; }
+        [JsonProperty("class")] public string Class { get; set; }
+        [JsonProperty("img")] public string Img { get; set; }
     }
 }

@@ -16,6 +16,8 @@ namespace Saltant.Matchmaking
             this.gameType = gameType;
             events = new();
             events.MatchCreated += OnMatchCreated;
+            events.CreateTeamError += OnCreateTeamError;
+            events.ElapsedTeam += OnElapsedTeam;
             InitializeGameType();
         }
 
@@ -35,10 +37,16 @@ namespace Saltant.Matchmaking
             }
         }
 
+        void OnCreateTeamError(string errorText, string playerName) => CreateTeamError.Invoke(errorText, playerName);
+
+        void OnElapsedTeam(string playerName) => ElapsedTeam.Invoke(playerName);
+
         GameBase game;
         public GameBase GetGame => game;
         public event Action<string> PlayerJoined;
         public event Action<IGameMatch> MatchCreated;
+        public event Action<string, string> CreateTeamError;
+        public event Action<string> ElapsedTeam;
         public GameType GetGameType => gameType;
         internal Events GetEvents => events;
 
@@ -75,9 +83,8 @@ namespace Saltant.Matchmaking
             events.InvokeEvent(gameType, Events.EventType.CreateTeam, playerName, data, rank);
         }
 
-        public void EndMatch(IGameMatch gameMatch)
-        {
-            events.InvokeEvent(gameType, Events.EventType.RemoveMatch, gameMatch);
-        }
+        public void EndMatch(IGameMatch gameMatch) => events.InvokeEvent(gameType, Events.EventType.RemoveMatch, gameMatch);
+
+        public void Disconnect(string playerName) => events.InvokeEvent(gameType, Events.EventType.Disconnect, playerName);
     }
 }

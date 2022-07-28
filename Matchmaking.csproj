@@ -9,8 +9,12 @@
     <Authors>Saltant</Authors>
     <Description>Game Matchmaker</Description>
     <Copyright>Saltant ©</Copyright>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
 	<LangVersion>9.0</LangVersion>
+	<PackageProjectUrl>https://github.com/Saltant/Matchmaking</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/Saltant/Matchmaking</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageReleaseNotes>Thunderdome implemented</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
